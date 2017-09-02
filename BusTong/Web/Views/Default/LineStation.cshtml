@@ -1,0 +1,113 @@
+﻿@{
+    ViewBag.Title = "LineStation";
+}
+
+@model Model.BusLineModel
+
+<div style="width:400px;  text-align:center">
+    <button onclick="javaseript: window.history.go(-1);"> 返 回</button>
+</div>
+
+<div style="border:1px solid red; width:400px;float:left; padding-left:50px">
+    <h2>站点列表</h2>
+    <ul>
+        @if (Model != null && Model.data != null)
+        { 
+            foreach (var m in Model.data)
+            {
+                <li >
+                    <a style="font-size:12px; font-family:Arial">
+                        <span style="color:Orange">站名： @m.StationName </span><br />
+                        <span>环域：@m.Area </span>
+                        <span>区属：@m.District </span><br />
+                        <span>路名：@m.RoadName </span><br />
+                        <span>方向：@m.PathDirection </span><br />
+                        <span>站址：@m.StationAddress </span><br />
+                        <span>并线：@m.lineList </span><br />
+                    </a>
+                    <button onclick="BtnQuery('@m.stopid')">查询到站</button>
+                </li>
+            }
+        }
+        else
+        {
+            <li>
+                <span>无此路线</span>&nbsp;&nbsp;&nbsp;
+                @*<button onclick="javaseript: window.history.go(-1);"> 返 回</button>*@
+            </li>
+        }
+    </ul>
+
+
+
+</div>
+<div id="shtml" style="float:left; margin-left:30px;">
+
+</div>
+
+<script>
+    function BtnQuery(stopid) {
+
+        var doc = document.getElementById('shtml');
+        doc.innerHTML = '';
+        var url = '@Url.Action("Query", "Default")';
+
+        var obj = new XMLHttpRequest();
+
+        var data = "stopid=" + stopid;// { stopid: stopid };
+
+        obj.open("POST", url, true);
+        obj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // 添加http头，发送信息至服务器时内容编码类型
+        obj.onreadystatechange = function () {
+            if (obj.readyState == 4 && (obj.status == 200 || obj.status == 304)) {  // 304未修改
+                // fn.call(this, obj.responseText);
+                //alert(obj.responseText);
+
+                var str = GB2312UnicodeConverter.ToGB2312(obj.responseText);
+                //str = str.replace(/<[^<>]+?>/g, '');
+
+                doc.innerHTML = str;
+                ///document.getElementById('__VIEWSTATE').innerHTML = "";
+            }
+        };
+        obj.send(data);
+
+
+    }
+
+    var GB2312UnicodeConverter = {
+        ToUnicode: function (str) {
+            var txt = escape(str).toLocaleLowerCase().replace(/%u/gi, '\\u');
+            //var txt= escape(str).replace(/([%3F]+)/gi,'\\u');
+            return txt.replace(/%7b/gi, '{').replace(/%7d/gi, '}').replace(/%3a/gi, ':').replace(/%2c/gi, ',').replace(/%27/gi, '\'').replace(/%22/gi, '"').replace(/%5b/gi, '[').replace(/%5d/gi, ']').replace(/%3D/gi, '=').replace(/%20/gi, ' ').replace(/%3E/gi, '>').replace(/%3C/gi, '<').replace(/%3F/gi, '?').replace(/%5c/gi, '\\');//
+        }
+		  , ToGB2312: function (str) {
+		      return unescape(str.replace(/\\u/gi, '%u'));
+		  }
+    };
+
+
+    var Ajax = {
+        get: function (url, fn) {
+            var obj = new XMLHttpRequest();  // XMLHttpRequest对象用于在后台与服务器交换数据
+            obj.open('GET', url, true);
+            obj.onreadystatechange = function () {
+                if (obj.readyState == 4 && obj.status == 200 || obj.status == 304) { // readyState == 4说明请求已完成
+                    fn.call(this, obj.responseText);  //从服务器获得数据
+                }
+            };
+            obj.send();
+        },
+        post: function (url, data, fn) {         // datat应为'a=a1&b=b1'这种字符串格式，在jq里如果data为对象会自动将对象转成这种字符串格式
+            var obj = new XMLHttpRequest();
+            obj.open("POST", url, true);
+            obj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // 添加http头，发送信息至服务器时内容编码类型
+            obj.onreadystatechange = function () {
+                if (obj.readyState == 4 && (obj.status == 200 || obj.status == 304)) {  // 304未修改
+                    fn.call(this, obj.responseText);
+                }
+            };
+            obj.send(data);
+        }
+    }
+</script>

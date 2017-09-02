@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>公交到站查询</h2>
+
+<form action="@Url.Action("LineStation", "Default")" method="post" >
+    公交路线：<input type="text" name="RoadLine" /> 
+    <button type="submit">搜索</button>
+</form>
